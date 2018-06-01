@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx;user</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;manifest;mfcribbon - ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientWhatsup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Wintempla.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WintemplaWin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Login.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AddContacto.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientWhatsup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Wintempla.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WintemplaWin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Login.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AddContacto.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ClientWhatsup.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="ClientWhatsup.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="about.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="add.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="addd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="cart.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="cartd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="client.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="copy.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="cost.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="cut.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="cutd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="data_view.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="delete.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="deleted.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="edit.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="editd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="employee.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="filter.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="filterd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="graph.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="help.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="money.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="moneyd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="msexcel.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="msword.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="new.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="open.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="paste.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="people.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="print.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="printd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="print_preview.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="print_previewd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="redo.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="redod.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="refresh.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="refreshd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="save.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="saved.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="search.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="searchd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="tutorial.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="undo.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="undod.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="xy_graph.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="ClientWhatsup.exe.manifest">
+      <Filter>Resource Files</Filter>
+    </Manifest>
+  </ItemGroup>
+</Project>

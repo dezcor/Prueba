@@ -18,7 +18,8 @@ void ClientWhatsup::Window_Open(Win::Event& e)
 	name = login.GetName();
 	phone = login.getUsername();
 	userx_id = login.get_id();
-	
+	this->Text += L" " + name;
+	lbPhone.Text = phone;
 	//________________________________________________________ lvContactList
 	soapContactList.ActionXmlns = L"http://www.ugto.com/Whatsup";
 	soapContactList.ActionName = L"ContactList";
@@ -47,6 +48,7 @@ void ClientWhatsup::Window_Open(Win::Event& e)
 	lbNameContact.Text = lvContactList.Items[0][0].Text;
 	lvContactList.Items[0].Selected = true;
 	UpdateMessageList();
+	timer.Set(1, 5000);
 	//________________________________________________________ lvMessageList
 	//________________________________________________________ lvContactMessage
 }
@@ -134,7 +136,7 @@ void ClientWhatsup::UpdateMessageList()
 	soapMessageList.SetParameterValue(L"userx_id", userx_id);
 	soapMessageList.SetParameterValue(L"passwordx", password);
 
-	Win::BusyCursor cursor(true);
+	//Win::BusyCursor cursor(true);
 	wstring text;
 	Web::HttpRequest httpRequest;
 	PrepareHttpRequest(httpRequest, soapMessageList);
@@ -183,11 +185,11 @@ void ClientWhatsup::UpdateMessageList()
 		MessageBox(error, L"ClientWhatsup", MB_OK | MB_ICONERROR);
 		return;
 	}
+	if (response->child.size() == lvMessageList.Items.Count) return;
 	lvMessageList.Delete();
 	lvMessageList.SetRedraw(false);
 	lvMessageList.ImportFromXml(true, *response);
 	UpdateContactMessage();
-	lvMessageList.SetRedraw(true);
 }
 
 
@@ -220,12 +222,13 @@ void ClientWhatsup::UpdateContactMessage()
 		if ((senderx_id == contact_id || respientx_id == contact_id))
 		{
 
-			lvContactMessage.Items.Add(lvMessageList.Items[i].Data, senderx_id == contact_id ? lvContactList.Items[Index][0].Text : name);
+			lvContactMessage.Items.Add(k, senderx_id == contact_id ? lbNameContact.Text : name);
 			lvContactMessage.Items[k][1].Text = lvMessageList.Items[i][respient_id+1].Text;
-			lvContactMessage.Items[k].Data = lvMessageList.Items[i].Data;
+			lvContactMessage.Items[k].Data = i;
 			k++;
 		}
 	}
+	lvContactMessage.Show(_SW_SQRTNEG);
 	lvContactMessage.SetRedraw(true);
 }
 void ClientWhatsup::tbxSendMessage_Change(Win::Event& e)
@@ -305,10 +308,6 @@ void ClientWhatsup::SendMessageX()
 		tbxSendMessage.ShowBalloonTip(L"ClientWhatsup", L"Mensaje no enviado\n",TTI_ERROR);
 	}
 }
-void ClientWhatsup::btUdate_Click(Win::Event& e)
-{
-	UpdateMessageList();
-}
 
 void ClientWhatsup::btAgregarContacto_Click(Win::Event& e)
 {
@@ -325,7 +324,7 @@ void ClientWhatsup::btDeleteMs_Click(Win::Event& e)
 {
 	LPARAM ms_id;
 	if (!lvContactMessage.GetSelectedData(ms_id))return;
-	soapDeleteMessage.SetParameterValue(L"message_id",ms_id);
+	soapDeleteMessage.SetParameterValue(L"message_id", lvMessageList.Items[ms_id].Data);
 
 	Win::BusyCursor cursor(true);
 	wstring text;
@@ -389,3 +388,7 @@ void ClientWhatsup::btDeleteMs_Click(Win::Event& e)
 	}
 }
 
+void ClientWhatsup::Window_Timer(Win::Event& e)
+{
+	UpdateMessageList();
+}

@@ -1,0 +1,7 @@
+LIBRARY	     "Whatsup"
+
+EXPORTS
+	HttpExtensionProc
+	GetExtensionVersion
+	TerminateExtension
+

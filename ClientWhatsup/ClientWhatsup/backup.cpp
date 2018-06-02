@@ -1,68 +1,174 @@
-#include "stdafx.h"  //________________________________________ ClientWhatsup.cpp
-#include "ClientWhatsup.h"
+#include "stdafx.h"  //_____________________________________________ Login.cpp
+#include "Login.h"
 
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE , LPTSTR cmdLine, int cmdShow){
-	ClientWhatsup app;
-	return app.BeginDialog(IDI_ClientWhatsup, hInstance);
+void Login::Window_Open(Win::Event& e)
+{
+	soapLogin.ActionXmlns = L"http://www.ugto.com/Whatsup";
+	soapLogin.ActionName = L"Login";
+	soapLogin.AddParameter(L"name", L" ");
+	soapLogin.AddParameter(L"phone", L" ");
+	soapLogin.AddParameter(L"password", L" ");
+	lb3.Visible = false;
+	tbxName.Visible = false;
 }
 
-void ClientWhatsup::Window_Open(Win::Event& e)
+void Login::btOK_Click(Win::Event& e)
 {
-	Login login;
-	if (!login.BeginDialog(hWnd))
+	soapLogin.ActionName = L"Login";
+	Win::BusyCursor cursor(true);
+	wstring text;
+	static int i = 0;
+	Web::HttpRequest httpRequest;
+	PrepareHttpRequest(httpRequest);
+	httpRequest.GetTextToBeSent(text);
+
+	Sys::Socket socket;
+	int result = socket.Connect(L"localhost", 80);
+	if (result == SOCKET_ERROR)
 	{
-		Destroy();
+		MessageBox(L"ClientWhatsup", socket.GetLastErrorDesc(), MB_OK | MB_ICONERROR);
+		return;
+	}
+	result = socket.Send(httpRequest);
+	if (result == SOCKET_ERROR)
+	{
+		MessageBox(L"ClientWhatsup", socket.GetLastErrorDesc(), MB_OK | MB_ICONERROR);
+		return;
+	}
+	if (result == SOCKET_DISCONNECTED)
+	{
+		MessageBox(L"Connection terminate", socket.GetLastErrorDesc(), MB_OK | MB_ICONERROR);
+		return;
 	}
 
-	password = login.getPassword();
-	name = login.GetName();
-	phone = login.getUsername();
-	userx_id = login.get_id();
-	
-	//________________________________________________________ lvContactList
-	soapContactList.ActionXmlns = L"http://www.ugto.com/Whatsup";
-	soapContactList.ActionName = L"ContactList";
-	soapContactList.AddParameter(L"phone", phone);
-	soapContactList.AddParameter(L"Password", password);
-	//_________________________________________________________
-	soapMessageList.ActionXmlns = L"http://www.ugto.com/Whatsup";
-	soapMessageList.ActionName = L"MessageList";
-	soapMessageList.AddParameter(L"userx_id", userx_id);
-	soapMessageList.AddParameter(L"passwordx", password);
-	//_________________________________________________________
-	soapSendMessage.ActionXmlns = L"http://www.ugto.com/Whatsup";
-	soapSendMessage.ActionName = L"SendMessage";
-	soapSendMessage.AddParameter(L"user_id", userx_id);
-	soapSendMessage.AddParameter(L"password", password);
-	soapSendMessage.AddParameter(L"recipient_id", userx_id);
-	soapSendMessage.AddParameter(L"content", tbxSendMessage.Text);
-	//_________________________________________________________
-	UpdateList();
-	contact_id = lvContactList.Items[0].Data;
-	lbNameContact.Text = lvContactList.Items[0][0].Text;
-	lvContactList.Items[0].Selected = true;
-	UpdateMessageList();
-	//________________________________________________________ lvMessageList
-	//________________________________________________________ lvContactMessage
+	socket.ShutdownSend();
+	Web::HttpResponse httpResponse;
+	result = socket.Receive(httpResponse);
+	if (result == SOCKET_ERROR)
+	{
+		MessageBox(L"ClientWhatsup", socket.GetLastErrorDesc(), MB_OK | MB_ICONERROR);
+		return;
+	}
+
+	Sys::SoapEnvelope soapResult;
+	const WCHAR* error = soapResult.CreateFromUtf8(httpResponse.body);
+	if (error != NULL)
+	{
+		MessageBox(error, L"ClientWhatsup", MB_OK | MB_ICONERROR);
+		return;
+	}
+	httpResponse.GetText(text);
+	list<Sys::Xml>::iterator response;
+	if (soapResult.GetResponse(response) == false)
+	{
+		MessageBox(error, L"ClientWhatsup", MB_OK | MB_ICONERROR);
+		return;
+	}
+	wstring user_id;
+	list<Sys::Xml>::iterator isOK;
+	response->GetChild(L"userx",isOK);
+	if (!isOK->GetChildValue(L"userx_id", user_id))
+	{
+		isTermino(++i);
+		return;
+	}
+	if (!isOK->GetChildValue(L"namex", name))
+	{
+		isTermino(++i);
+		return;
+	}
+	wstring phone;
+	if (!isOK->GetChildValue(L"phone", phone))
+	{
+		isTermino(++i);
+		return;
+	}
+	if (user_id.empty())
+	{
+		isTermino(++i);
+		return;
+	}
+	userx_id = stoi(user_id);
+	if (tbxUsername.Text.compare(phone) == 0)
+		EndDialog(true);
+	else
+		isTermino(++i);
+}
+
+void Login::btCancel_Click(Win::Event& e)
+{
+	EndDialog(false);
+}
+
+wstring& Login::getPassword()
+{
+	return tbxPassword.Text;
+}
+
+wstring& Login::getUsername()
+{
+	return tbxUsername.Text;
 }
 
 
-void ClientWhatsup::PrepareHttpRequest(Web::HttpRequest& httpRequest, Sys::SoapEnvelope& soap)
+void Login::tbxUsername_Change(Win::Event& e)
 {
-	httpRequest.Create(soap);
+	soapLogin.SetParameterValue(L"phone", tbxUsername.Text);
+}
+
+void Login::tbxPassword_Change(Win::Event& e)
+{
+	soapLogin.SetParameterValue(L"password", tbxPassword.Text);
+}
+
+wstring& Login::GetName()
+{
+	return name;
+}
+
+int Login::get_id()
+{
+	return userx_id;
+}
+
+
+void Login::PrepareHttpRequest(Web::HttpRequest& httpRequest)
+{
+	httpRequest.Create(soapLogin);
 	httpRequest.method = L"POST";
 	httpRequest.resource = L"/Whatsup/Whatsup.dll";
 }
 
 
-void ClientWhatsup::UpdateList()
+void Login::isTermino(int i)
 {
-	soapContactList.SetParameterValue(L"phone", phone);
-	soapContactList.SetParameterValue(L"Password", password);
+	if (i >= 3)
+		EndDialog(false);
+}
+
+void Login::btNewUser_Click(Win::Event& e)
+{
+	if (lb3.Visible == false)
+	{
+		lb3.Visible = true;
+		tbxName.Visible = true;
+		tbxUsername.ShowBalloonTip(L"ClientWhatsup", L"Place the phone, password and name\nAnd click again from New User", TTI_INFO);
+		return;
+	}
+	if (tbxName.Text.empty())
+	{
+		tbxName.ShowBalloonTip(L"ClientWhatsup", L"put name please", TTI_INFO);
+	}
+	if (tbxPassword.Text.length() < 4)
+	{
+		tbxName.ShowBalloonTip(L"ClientWhatsup", L"please enter the password more than 4 characters", TTI_INFO);
+	}
+	soapLogin.ActionName = L"NewUser";
+	soapLogin.SetParameterValue(L"name", tbxName.Text);
 	Win::BusyCursor cursor(true);
 	wstring text;
 	Web::HttpRequest httpRequest;
-	PrepareHttpRequest(httpRequest,soapContactList);
+	PrepareHttpRequest(httpRequest);
 
 	httpRequest.GetTextToBeSent(text);
 
@@ -108,214 +214,11 @@ void ClientWhatsup::UpdateList()
 		MessageBox(error, L"ClientWhatsup", MB_OK | MB_ICONERROR);
 		return;
 	}
-	lvContactList.Delete();
-	lvContactList.SetRedraw(false);
-	lvContactList.ImportFromXml(true, *response);
-	lvContactList.SetRedraw(true);
-}
-void ClientWhatsup::lvContactList_Click(Win::Event& e)
-{
-	LPARAM Index = lvContactList.GetSelectedIndex();
-	if (Index < 0)return;
-	contact_id = lvContactList.Items[Index].Data;
-	lbNameContact.Text = lvContactList.Items[Index][0].Text;
-	UpdateContactMessage();
-}
-
-
-
-void ClientWhatsup::UpdateMessageList()
-{
-	soapMessageList.SetParameterValue(L"userx_id", userx_id);
-	soapMessageList.SetParameterValue(L"passwordx", password);
-
-	Win::BusyCursor cursor(true);
-	wstring text;
-	Web::HttpRequest httpRequest;
-	PrepareHttpRequest(httpRequest, soapMessageList);
-
-	httpRequest.GetTextToBeSent(text);
-
-	Sys::Socket socket;
-	int result = socket.Connect(L"localhost", 80);
-	if (result == SOCKET_ERROR)
-	{
-		MessageBox(L"ClientWhatsup", socket.GetLastErrorDesc(), MB_OK | MB_ICONERROR);
-		return;
-	}
-	result = socket.Send(httpRequest);
-	if (result == SOCKET_ERROR)
-	{
-		MessageBox(L"ClientWhatsup", socket.GetLastErrorDesc(), MB_OK | MB_ICONERROR);
-		return;
-	}
-	if (result == SOCKET_DISCONNECTED)
-	{
-		MessageBox(L"Connection terminate", socket.GetLastErrorDesc(), MB_OK | MB_ICONERROR);
-		return;
-	}
-
-	socket.ShutdownSend();
-	Web::HttpResponse httpResponse;
-	result = socket.Receive(httpResponse);
-	if (result == SOCKET_ERROR)
-	{
-		MessageBox(L"ClientWhatsup", socket.GetLastErrorDesc(), MB_OK | MB_ICONERROR);
-		return;
-	}
-
-	Sys::SoapEnvelope soapResult;
-	const WCHAR* error = soapResult.CreateFromUtf8(httpResponse.body);
-	if (error != NULL)
-	{
-		MessageBox(error, L"ClientWhatsup", MB_OK | MB_ICONERROR);
-		return;
-	}
-	httpResponse.GetText(text);
-	list<Sys::Xml>::iterator response;
-	if (soapResult.GetResponse(response) == false)
-	{
-		MessageBox(error, L"ClientWhatsup", MB_OK | MB_ICONERROR);
-		return;
-	}
-	lvMessageList.Delete();
-	lvMessageList.SetRedraw(false);
-	lvMessageList.ImportFromXml(true, *response);
-	UpdateContactMessage();
-	lvMessageList.SetRedraw(true);
-}
-
-
-
-void ClientWhatsup::UpdateContactMessage()
-{
-	int sender_id = 1, senderx_id = -1;
-	wstring aux;
-	int respient_id = 2, respientx_id = -1,k=0;
-	lvContactMessage.SetRedraw(false);
-	lvContactMessage.Delete();
-	lvContactMessage.Cols.Add(0, LVCFMT_LEFT, 100, L"Enviado");
-	lvContactMessage.Cols.Add(1, LVCFMT_RIGHT, 300, L"Mensajes");
-	LPARAM Index = lvContactList.GetSelectedIndex();
-	for (int i = 0; i < lvMessageList.ItemCount; i++)
-	{
-
-		aux = lvMessageList.Items[i][sender_id].GetText();
-		if (aux.empty())
-		{
-			return;
-		}
-		senderx_id = stoi(aux);
-		aux = lvMessageList.Items[i][respient_id].GetText();
-		if (aux.empty())
-		{
-			return;
-		}
-		respientx_id = stoi(aux);
-		if ((senderx_id == contact_id || respientx_id == contact_id))
-		{
-
-			lvContactMessage.Items.Add(lvMessageList.Items[i].Data, senderx_id == contact_id ? lvContactList.Items[Index][0].Text : name);
-			lvContactMessage.Items[k][1].Text = lvMessageList.Items[i][respient_id+1].Text;
-			k++;
-		}
-	}
-	lvContactMessage.SetRedraw(true);
-}
-void ClientWhatsup::tbxSendMessage_Change(Win::Event& e)
-{
-}
-
-void ClientWhatsup::btEnviar_Click(Win::Event& e)
-{
-	SendMessageX();
-}
-
-void ClientWhatsup::SendMessageX()
-{
-	soapSendMessage.SetParameterValue(L"user_id", userx_id);
-	soapSendMessage.SetParameterValue(L"password", password);
-	soapSendMessage.SetParameterValue(L"recipient_id", contact_id);
-	soapSendMessage.SetParameterValue(L"content", tbxSendMessage.Text);
-
-	Win::BusyCursor cursor(true);
-	wstring text;
-	Web::HttpRequest httpRequest;
-	PrepareHttpRequest(httpRequest,soapSendMessage);
-
-	httpRequest.GetTextToBeSent(text);
-
-	Sys::Socket socket;
-	int result = socket.Connect(L"localhost", 80);
-	if (result == SOCKET_ERROR)
-	{
-		MessageBox(L"ClientWhatsup", socket.GetLastErrorDesc(), MB_OK | MB_ICONERROR);
-		return;
-	}
-	result = socket.Send(httpRequest);
-	if (result == SOCKET_ERROR)
-	{
-		MessageBox(L"ClientWhatsup", socket.GetLastErrorDesc(), MB_OK | MB_ICONERROR);
-		return;
-	}
-	if (result == SOCKET_DISCONNECTED)
-	{
-		MessageBox(L"Connection terminate", socket.GetLastErrorDesc(), MB_OK | MB_ICONERROR);
-		return;
-	}
-
-	socket.ShutdownSend();
-	Web::HttpResponse httpResponse;
-	result = socket.Receive(httpResponse);
-	if (result == SOCKET_ERROR)
-	{
-		MessageBox(L"ClientWhatsup", socket.GetLastErrorDesc(), MB_OK | MB_ICONERROR);
-		return;
-	}
-
-	Sys::SoapEnvelope soapResult;
-	const WCHAR* error = soapResult.CreateFromUtf8(httpResponse.body);
-	if (error != NULL)
-	{
-		MessageBox(error, L"ClientWhatsup", MB_OK | MB_ICONERROR);
-		return;
-	}
-	httpResponse.GetText(text);
-	list<Sys::Xml>::iterator response;
-	if (soapResult.GetResponse(response) == false)
-	{
-		MessageBox(error, L"ClientWhatsup", MB_OK | MB_ICONERROR);
-		return;
-	}
-	wstring isSend;
-	response->GetChildValue(L"Envidado", isSend);
-	if (isSend.compare(L"Yes")==0)
-	{
-		UpdateMessageList();
-		tbxSendMessage.Text=L"";
-	}
+	wstring isAdd;
+	response->GetChildValue(L"Add", isAdd);
+	if (isAdd.compare(L"Yes") == 0)
+		tbxUsername.ShowBalloonTip(L"ClientWhatsup", L"Press ok", TTI_INFO);
 	else
-	{
-		tbxSendMessage.ShowBalloonTip(L"ClientWhatsup", L"Mensaje no enviado\n",TTI_ERROR);
-	}
-}
-void ClientWhatsup::btUdate_Click(Win::Event& e)
-{
-	UpdateMessageList();
-}
-
-void ClientWhatsup::btAgregarContacto_Click(Win::Event& e)
-{
-	AddContacto dlg;
-	dlg.password = password;
-	dlg.phone = phone;
-	if (dlg.BeginDialog(hWnd))
-	{
-		UpdateList();
-	}
-}
-
-void ClientWhatsup::btDeleteMs_Click(Win::Event& e)
-{
+		tbxUsername.ShowBalloonTip(L"ClientWhatsup", L"Invaluable phone", TTI_INFO);
 }
 
